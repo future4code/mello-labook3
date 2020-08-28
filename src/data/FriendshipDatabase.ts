@@ -1,7 +1,8 @@
 import { BaseDatabase } from "./BaseDatabase";
 import { User } from "../model/User";
+import { Friendship } from "../model/Friendship";
 
-export class UserDatabase extends BaseDatabase {
+export class FriendshipDatabase extends BaseDatabase {
   private static TABLE_NAME = "friendship";
 
   private toModel(dbModel?: any): User | undefined {
@@ -11,21 +12,20 @@ export class UserDatabase extends BaseDatabase {
     );
   }
 
-  public async createUser(user: User): Promise<void> {
+  public async createFriendship(friendship: Friendship): Promise<void> {
     await this.getConnection()
       .insert({
-        id: user.getId(),
-        name: user.getName(),
-        email: user.getEmail(),
-        password: user.getPassword(),
+        id: friendship.getId(),
+        user_id: friendship.getUserId(),
+        friend_id: friendship.getFriendId(),
       })
-      .into(UserDatabase.TABLE_NAME);
+      .into(FriendsDatabase.TABLE_NAME);
   }
 
   public async getUserById(id: string): Promise<User | undefined> {
     const result = await this.getConnection()
       .select("*")
-      .from(UserDatabase.TABLE_NAME)
+      .from(FriendsDatabase.TABLE_NAME)
       .where({ id });
 
     return this.toModel(result[0]);
@@ -34,9 +34,19 @@ export class UserDatabase extends BaseDatabase {
   public async getUserByEmail(email: string): Promise<User | undefined> {
     const result = await this.getConnection()
       .select("*")
-      .from(UserDatabase.TABLE_NAME)
+      .from(FriendsDatabase.TABLE_NAME)
       .where({ email });
 
     return this.toModel(result[0]);
+  }
+
+  public async getAllUsers(): Promise<User[]> {
+    const result = await this.getConnection()
+      .select("*")
+      .from(FriendsDatabase.TABLE_NAME);
+
+    return result.map((item: any) => {
+      return this.toModel(item);
+    }) as User[];
   }
 }
