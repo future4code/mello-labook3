@@ -1,5 +1,4 @@
 import * as jwt from "jsonwebtoken";
-import { UserRole, toUserRole } from "../model/User";
 
 export class Authenticator {
   private static EXPIRES_IN = "48h";
@@ -8,7 +7,6 @@ export class Authenticator {
       {
         id: input.id,
         email: input.email,
-        role: input.role,
       },
       process.env.JWT_KEY as string,
       {
@@ -23,7 +21,6 @@ export class Authenticator {
     const result = {
       id: payload.id,
       email: payload.email,
-      role: toUserRole(payload.role),
     };
     return result;
   }
@@ -32,5 +29,4 @@ export class Authenticator {
 interface AuthenticationData {
   id: string;
   email: string;
-  role: UserRole;
 }

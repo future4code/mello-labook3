@@ -1,16 +1,11 @@
 import { UserDatabase } from "../data/UserDatabase";
 import { IdGenerator } from "../services/IdGenerator";
 import { HashManager } from "../services/HashManager";
-import { User, toUserRole, UserRole } from "../model/User";
+import { User } from "../model/User";
 import { Authenticator } from "../services/Authenticator";
 
 export class UserBusiness {
-  public async signup(
-    name: string,
-    email: string,
-    password: string,
-    role: string
-  ) {
+  public async signup(name: string, email: string, password: string) {
     if (!email || email.indexOf("@") === -1) {
       throw new Error("Invalid email");
     }
@@ -24,14 +19,13 @@ export class UserBusiness {
 
     const userDb = new UserDatabase();
 
-    const user = new User(id, name, email, cryptedPassword, toUserRole(role));
+    const user = new User(id, name, email, cryptedPassword);
 
     await userDb.createUser(user);
 
     const accessToken = new Authenticator().generateToken({
       id: user.getId(),
       email: user.getEmail(),
-      role: user.getRole(),
     });
 
     return { id: id, accessToken };
@@ -62,7 +56,7 @@ export class UserBusiness {
       user.getPassword()
     );
     console.log("validação da senha: ", isPasswordCorrect);
-    
+
     if (!isPasswordCorrect) {
       throw new Error("Wrong password");
     }
@@ -70,26 +64,8 @@ export class UserBusiness {
     const accessToken = new Authenticator().generateToken({
       id: user.getId(),
       email: user.getEmail(),
-      role: user.getRole(),
     });
 
     return { id: user.getId(), accessToken };
-  }
-
-  public async getAllUsers() {
-    const userDb = new UserDatabase();
-    const users = await userDb.getAllUsers();
-    return {
-      users: users.map((user) => ({
-        id: user.getId(),
-        name: user.getName(),
-        email: user.getEmail(),
-      })),
-    };
-  }
-
-  public async turnUserIntoSubscriber(userId: string) {
-    const userDb = new UserDatabase();
-    await userDb.changeUserRole(userId, UserRole.SUBSCRIBER);
   }
 }

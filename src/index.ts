@@ -1,8 +1,7 @@
-import express, { Request, Response } from "express";
+import express from "express";
 import dotenv from "dotenv";
 import { AddressInfo } from "net";
 import { userRouter } from "./router/UserRouter";
-import { newsRouter } from "./router/NewsRouter";
 
 dotenv.config();
 
@@ -11,7 +10,6 @@ const app = express();
 app.use(express.json());
 
 app.use("/users", userRouter);
-app.use("/news", newsRouter);
 
 const server = app.listen(process.env.PORT || 3003, () => {
   if (server) {
